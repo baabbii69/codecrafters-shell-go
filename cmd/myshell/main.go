@@ -80,7 +80,7 @@ func handleType(args []string) {
 	for _, dir := range dirs {
 		fullPath := filepath.Join(dir, cmd)
 		if fileExistsAndExecutable(fullPath) {
-			fmt.Printf("%s is in %s\n", cmd, fullPath)
+			fmt.Printf("%s is %s\n", cmd, fullPath)
 			found = true
 			break
 		}
