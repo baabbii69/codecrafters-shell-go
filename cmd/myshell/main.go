@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -62,11 +63,39 @@ func handleType(args []string) {
 	}
 
 	cmd := args[0]
+	//checks if the command is builtin or not by checking it from builtin slice
 	if _, exists := builtins[cmd]; exists {
 		fmt.Printf("%s is a shell builtin\n", cmd)
-	} else {
-		fmt.Printf("%s: not found\n", cmd)
+		return
 	}
+	//get the path environment variable
+	path := os.Getenv("PATH")
+	if path == "" {
+		fmt.Fprintf(os.Stderr, "%s: PATH not set\n", cmd)
+		return
+	}
+	//split the path into directories
+	dirs := strings.Split(path, ":")
+	found := false
+	for _, dir := range dirs {
+		fullPath := filepath.Join(dir, cmd)
+		if fileExistsAndExecutable(fullPath) {
+			fmt.Printf("%s is in %s\n", cmd, fullPath)
+			found = true
+			break
+		}
+	}
+	if !found {
+		fmt.Fprintf(os.Stderr, "%s: not found\n", cmd)
+	}
+}
+
+func fileExistsAndExecutable(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir() && info.Mode().Perm()&0111 != 0
 }
 
 //fmt.Fprint(os.Stdout, "$ ")
