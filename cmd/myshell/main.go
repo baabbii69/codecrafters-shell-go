@@ -20,19 +20,20 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Error reading input:", err)
 			os.Exit(1)
 		}
-
-		if command == "exit 0\n" {
-			os.Exit(0)
-		}
 		word := strings.Fields(command)
 		var words []string
 		for _, w := range word {
 			words = append(words, w)
 		}
-		if words[0] == "echo" {
-			fmt.Println(strings.Join(words[1:], " "))
-		} else {
-			fmt.Println(command[:len(command)-1] + ": command not found")
+
+		switch words[0] {
+		case "echo":
+			fmt.Fprintf(os.Stdout, "%s\n", strings.Join(words[1:], " "))
+		case "exit":
+			os.Exit(0)
+		default:
+			fmt.Fprintf(os.Stderr, "%s: command not found\n", command[:len(command)-1])
 		}
+
 	}
 }
