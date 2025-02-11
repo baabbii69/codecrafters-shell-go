@@ -107,7 +107,7 @@ func runExternalCommand(cmd string, args []string) {
 		return
 	}
 	// Step 2: Use os/exec to run the program with its arguments
-	output, err := executeProgram(fullPath, args)
+	output, err := executeProgram(cmd, args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error Executing %s: %v\n", cmd, err)
 		return
