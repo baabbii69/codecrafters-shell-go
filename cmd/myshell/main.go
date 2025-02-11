@@ -143,7 +143,9 @@ func executeProgram(program string, args []string) ([]byte, error) {
 	// Capture the combined output (stdout + stderr)
 	// Return the output and any error that occurred
 	basename := filepath.Base(program)
-	cmd := exec.Command(program, append([]string{basename}, args...)...)
+	cmd := exec.Command(program)
+	cmd.Args = append([]string{basename}, args...)
+	//cmd := exec.Command(program, append([]string{basename}, args...)...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
