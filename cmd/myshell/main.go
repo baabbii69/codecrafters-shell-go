@@ -106,13 +106,16 @@ func runExternalCommand(cmd string, args []string) {
 		fmt.Fprintf(os.Stderr, "%s: command not found\n", cmd)
 		return
 	}
+
 	// Step 2: Use os/exec to run the program with its arguments
 	output, err := executeProgram(fullPath, args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error Executing %s: %v\n", cmd, err)
 		return
 	}
-	fmt.Println(string(output))
+
+	// Print the output without adding an extra newline
+	fmt.Print(string(output))
 
 }
 
@@ -139,8 +142,8 @@ func executeProgram(program string, args []string) ([]byte, error) {
 	// TODO: Use os/exec to execute the program with its arguments
 	// Capture the combined output (stdout + stderr)
 	// Return the output and any error that occurred
-	basename := filepath.Base(program)
-	cmd := exec.Command(basename, args...)
+
+	cmd := exec.Command(program, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
