@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -39,7 +40,7 @@ func main() {
 		if handler, exists := builtins[cmd]; exists {
 			handler(arg)
 		} else {
-			fmt.Fprintf(os.Stderr, "%s: command not found\n", cmd)
+			runExternalCommand(cmd, arg)
 		}
 
 		if err := scanner.Err(); err != nil {
@@ -96,6 +97,55 @@ func fileExistsAndExecutable(path string) bool {
 		return false
 	}
 	return !info.IsDir() && info.Mode().Perm()&0111 != 0
+}
+
+func runExternalCommand(cmd string, args []string) {
+	// Step 1: Find the full path of the executable using PATH
+	fullPath := findExecutableInPath(cmd)
+	if fullPath == "" {
+		fmt.Fprintf(os.Stderr, "%s: command not found\n", cmd)
+		return
+	}
+	// Step 2: Use os/exec to run the program with its arguments
+	output, err := executeProgram(fullPath, args)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error Executing %s: %v\n", cmd, err)
+		return
+	}
+	fmt.Println(string(output))
+
+}
+
+func findExecutableInPath(cmd string) string {
+	// TODO: Implement logic to search for the executable in PATH
+	// Use os.Getenv("PATH"), split it, and check each directory
+	// Return the full path if found, otherwise return an empty string
+	path := os.Getenv("PATH")
+	if path == "" {
+		return ""
+	}
+	dirs := strings.Split(path, ":")
+
+	for _, dir := range dirs {
+		fullPath := filepath.Join(dir, cmd)
+		if fileExistsAndExecutable(fullPath) {
+			return fullPath
+		}
+	}
+	return ""
+}
+
+func executeProgram(program string, args []string) ([]byte, error) {
+	// TODO: Use os/exec to execute the program with its arguments
+	// Capture the combined output (stdout + stderr)
+	// Return the output and any error that occurred
+	cmd := exec.Command(program, args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	return output, nil
 }
 
 //fmt.Fprint(os.Stdout, "$ ")
