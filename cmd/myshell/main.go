@@ -19,6 +19,7 @@ func main() {
 		"echo": handleEcho,
 		"exit": handleExit,
 		"type": handleType,
+		"pwd":  handlePwd,
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -55,6 +56,15 @@ func handleEcho(args []string) {
 
 func handleExit(args []string) {
 	os.Exit(0)
+}
+
+func handlePwd(args []string) {
+	path, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error in getting path", err)
+	} else {
+		fmt.Println(path)
+	}
 }
 
 func handleType(args []string) {
