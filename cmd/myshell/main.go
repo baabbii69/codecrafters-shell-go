@@ -20,6 +20,7 @@ func main() {
 		"exit": handleExit,
 		"type": handleType,
 		"pwd":  handlePwd,
+		"cd":   handleCd,
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -98,6 +99,38 @@ func handleType(args []string) {
 	}
 	if !found {
 		fmt.Fprintf(os.Stderr, "%s: not found\n", cmd)
+	}
+}
+
+func handleCd(args []string) {
+	// Step 1: Determine the target directory
+	var targetDir string
+	if len(args) == 0 {
+		targetDir = os.Getenv("Home")
+	} else {
+		targetDir = args[0]
+	}
+	// Step 2: convert the relative path to absolute path
+	absPath, err := filepath.Abs(targetDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cd: %v: No such file or directory\n", targetDir)
+		return
+	}
+
+	// Step 3: checking if the path exists and its directory
+	info, err := os.Stat(absPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", targetDir)
+		return
+	}
+	if !info.IsDir() {
+		fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory", targetDir)
+		return
+	}
+	err = os.Chdir(absPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cd: %s: %v\n", targetDir, err)
+		return
 	}
 }
 
