@@ -106,7 +106,7 @@ func handleCd(args []string) {
 	// Step 1: Determine the target directory
 	var targetDir string
 	if len(args) == 0 {
-		targetDir = os.Getenv("Home")
+		targetDir = os.Getenv("HOME")
 	} else {
 		targetDir = args[0]
 	}
@@ -124,9 +124,11 @@ func handleCd(args []string) {
 		return
 	}
 	if !info.IsDir() {
-		fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory", targetDir)
+		fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", targetDir)
 		return
 	}
+
+	// Step 4: Change the current working directory
 	err = os.Chdir(absPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cd: %s: %v\n", targetDir, err)
