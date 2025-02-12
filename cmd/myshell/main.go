@@ -105,7 +105,7 @@ func handleType(args []string) {
 func handleCd(args []string) {
 	// Step 1: Determine the target directory
 	var targetDir string
-	if len(args) == 0 {
+	if len(args) == 0 || args[0] == "~" {
 		targetDir = os.Getenv("HOME")
 	} else {
 		targetDir = args[0]
