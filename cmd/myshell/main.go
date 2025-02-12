@@ -117,7 +117,7 @@ func handleCd(args []string) {
 		return
 	}
 
-	// Step 3: checking if the path exists and its directory
+	// Step 3: checking if the path exists and its directory.
 	info, err := os.Stat(absPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", targetDir)
