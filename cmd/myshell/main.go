@@ -33,7 +33,7 @@ func main() {
 		}
 
 		command := scanner.Text()
-		words := strings.Fields(command)
+		words := parseInput(command)
 		if len(words) == 0 {
 			continue
 		}
@@ -134,6 +134,33 @@ func handleCd(args []string) {
 		fmt.Fprintf(os.Stderr, "cd: %s: %v\n", targetDir, err)
 		return
 	}
+}
+
+func parseInput(input string) []string {
+	var args []string              // to store the final arguments
+	var currentArg strings.Builder // to build each individual argument
+	inQuotes := false              // to track whether we are inside single quotes
+
+	for i := 0; i < len(input); i++ {
+		char := input[i]
+
+		if char == '\'' {
+			inQuotes = !inQuotes
+			continue
+		}
+		if !inQuotes && char == ' ' {
+			if currentArg.Len() > 0 {
+				args = append(args, currentArg.String())
+				currentArg.Reset()
+			}
+			continue
+		}
+		currentArg.WriteByte(char)
+	}
+	if currentArg.Len() > 0 {
+		args = append(args, currentArg.String())
+	}
+	return args
 }
 
 func fileExistsAndExecutable(path string) bool {
