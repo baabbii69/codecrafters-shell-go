@@ -190,7 +190,7 @@ func parseInput(input string) []string {
 	}
 	if inDoubleQuotes {
 		fmt.Fprintf(os.Stderr, "Error: unclosed double quote")
-		return nill
+		return nil
 	}
 
 	if currentArg.Len() > 0 {
