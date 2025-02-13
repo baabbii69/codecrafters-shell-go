@@ -139,16 +139,41 @@ func handleCd(args []string) {
 func parseInput(input string) []string {
 	var args []string              // to store the final arguments
 	var currentArg strings.Builder // to build each individual argument
-	inQuotes := false              // to track whether we are inside single quotes
+	inSingleQuotes := false        // to track whether we are inside single quotes
+	inDoubleQuotes := false        // to track whether we are inside Double quotes
 
 	for i := 0; i < len(input); i++ {
 		char := input[i]
 
-		if char == '\'' {
-			inQuotes = !inQuotes
+		// handle the escape chars
+		if char == '\\' && (inDoubleQuotes || inSingleQuotes) && i+1 < len(input) {
+			i++ // move to the next char
+			nextChar := input[i]
+
+			// Only handle \, $, ", and newline inside double quotes
+			if inDoubleQuotes && (nextChar == '\\' || nextChar == '$' || nextChar == '"' || nextChar == '\n') {
+				currentArg.WriteByte(nextChar)
+			} else {
+				// outside double quotes or invalid escape sequence
+				currentArg.WriteByte('\\')
+				currentArg.WriteByte(nextChar)
+			}
 			continue
 		}
-		if !inQuotes && char == ' ' {
+
+		// handle single quotes
+		if char == '\'' && !inDoubleQuotes {
+			inSingleQuotes = !inSingleQuotes
+			continue
+		}
+		// handle double quotes
+		if char == '"' && !inSingleQuotes {
+			inDoubleQuotes = !inDoubleQuotes
+			continue
+		}
+
+		// handling space outside the quotes
+		if !inSingleQuotes && !inDoubleQuotes && char == ' ' {
 			if currentArg.Len() > 0 {
 				args = append(args, currentArg.String())
 				currentArg.Reset()
@@ -157,6 +182,17 @@ func parseInput(input string) []string {
 		}
 		currentArg.WriteByte(char)
 	}
+
+	// checking for unclosed quotes
+	if inSingleQuotes {
+		fmt.Fprintf(os.Stderr, "Error: unclosed single quote")
+		return nil
+	}
+	if inDoubleQuotes {
+		fmt.Fprintf(os.Stderr, "Error: unclosed double quote")
+		return nill
+	}
+
 	if currentArg.Len() > 0 {
 		args = append(args, currentArg.String())
 	}
